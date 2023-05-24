@@ -1,4 +1,5 @@
 import os
+import re
 import platform
 import subprocess
 import sys
@@ -186,6 +187,14 @@ def parse_mode_file(mode_path: str) -> List[List[str]]:
     """
     with open(mode_path) as mode_file:
         mode_str = mode_file.read().strip()
+
+    # Convert old-style transfer to new-style
+    # from apertium/wblank-mode.cc
+    mode_str = re.sub(
+        r"apertium-transfer\s+'([^']+)'\s+'([^']+)'\s+'([^']+autobil\.bin)'",
+        r"lt-proc -b '\3' | apertium-transfer -b '\1' '\2'",
+        mode_str)
+
     if mode_str:
         commands = []
         for cmd in mode_str.strip().split('|'):
